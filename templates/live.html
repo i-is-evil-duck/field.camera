@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  <!-- Add this line -->
+</head>
+<body>
+    <h1>Live Camera Stream</h1>
+
+    <label for="liveCamera">Choose Camera:</label>
+    <select id="liveCamera">
+        <option value="1">Camera 1</option>
+        <option value="2">Camera 2</option>
+        <option value="3">Camera 3</option>
+    </select>
+
+    <br><br>
+    <img id="liveStream" src="/stream/1" alt="Live stream" width="600">
+
+    <script>
+        // Handle camera switcher
+        $('#liveCamera').change(function() {
+            let cam_id = $(this).val();
+            $('#liveStream').attr('src', `/stream/${cam_id}`);
+        });
+    </script>
+</body>
+</html>
