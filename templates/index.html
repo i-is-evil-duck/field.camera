@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Recorder</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #clipList {
+            margin-top: 20px;
+        }
+        .notification {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            background: #4caf50;
+            color: #fff;
+        }
+        button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Camera Recorder</h1>
+
+    <label for="camera">Choose Camera:</label>
+    <select id="camera">
+        <option value="1">Camera 1</option>
+        <option value="2">Camera 2</option>
+        <option value="3">Camera 3</option>
+    </select>
+
+    <br><br>
+
+    <button id="record-10">Record 10 sec</button>
+    <button id="record-20">Record 20 sec</button> <!-- New button for 20 seconds -->
+    <button id="record-120">Record 2 min</button>
+    <button id="record-180">Record 3 min</button>
+    <button id="view-live">View Live Stream</button>
+
+    <div class="notification" id="notification">Recording Started!</div>
+
+    <h2>Past Clips:</h2>
+    <ul id="clipList"></ul>
+
+    <script>
+        // Notify user when recording starts/stops
+        function notify(message) {
+            $('#notification').text(message).fadeIn().delay(2000).fadeOut();
+        }
+
+        // Handle record buttons
+        function recordClip(duration) {
+            let cam_id = $('#camera').val();
+            notify('Recording Started!');
+            $.post('/record', { cam_id: cam_id, duration: duration }, function(response) {
+                let clip_id = response.clip_id;
+                notify('Recording Finished!');
+                window.open(`/clips/${clip_id}.mp4`, '_blank');
+                // Save to local storage
+                let storedClips = JSON.parse(localStorage.getItem('clips')) || [];
+                storedClips.push(clip_id);
+                localStorage.setItem('clips', JSON.stringify(storedClips));
+                updateClipList();
+            });
+        }
+
+        // Update list of clips from local storage
+        function updateClipList() {
+            let storedClips = JSON.parse(localStorage.getItem('clips')) || [];
+            let clipList = $('#clipList');
+            clipList.empty();
+            storedClips.forEach(function(clip_id) {
+                clipList.append(`<li><a href="/clips/${clip_id}.mp4" target="_blank">${clip_id}</a></li>`);
+            });
+        }
+
+        $(document).ready(function() {
+            updateClipList();
+
+            $('#record-10').click(function() {
+                recordClip(10);
+            });
+            $('#record-20').click(function() {  // New click handler for 20 seconds
+                recordClip(20);
+            });
+            $('#record-120').click(function() {
+                recordClip(120);
+            });
+            $('#record-180').click(function() {
+                recordClip(180);
+            });
+
+            $('#view-live').click(function() {
+                window.location.href = '/live';
+            });
+        });
+    </script>
+</body>
+</html>
